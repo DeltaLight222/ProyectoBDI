@@ -11,7 +11,7 @@
  - Francisco Daniel Segovia
  - Alexis Toledo
  - Renata Villalba Ruiz Diaz
- - 
+   
 **Año**: 2025
 
 ## CAPÍTULO I: INTRODUCCIÓN
