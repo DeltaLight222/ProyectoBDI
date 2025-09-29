@@ -139,6 +139,10 @@ Maecenas molestie lacus tincidunt, placerat dolor et, ullamcorper erat. Mauris t
 ### Diagrama relacional
 ![diagrama_relacional](https://github.com/DeltaLight222/ProyectoBDI/blob/main/doc/image_relational.png)
 
+### Diccionario de datos
+
+Acceso al documento [PDF](doc/diccionario_datos.pdf) del diccionario de datos.
+
 ### Desarrollo TEMA 1 "----"
 
 Fusce auctor finibus lectus, in aliquam orci fermentum id. Fusce sagittis lacus ante, et sodales eros porta interdum. Donec sed lacus et eros condimentum posuere. 
