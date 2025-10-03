@@ -75,7 +75,7 @@ Actualmente, la gestión de mantenimiento de maquinaria presenta diversas limita
 
 - Registro de instalaciones con datos de contacto y teléfonos asociados.
 
-### Limitaciones
+### Límites
 
 - No se incluye registro avanzado de rentabilidad o presupuestos anuales de mantenimiento.
 
@@ -85,7 +85,7 @@ Actualmente, la gestión de mantenimiento de maquinaria presenta diversas limita
 
 - No se implementa un sistema automatizado de compras para reposición de stock de repuestos.
 
-## Ojetivos del Trabajo Práctico
+## Objetivo del Trabajo Práctico
 
 ### Objetivos Generales
 
