@@ -9,7 +9,7 @@
 **Integrantes**:
  - Jorge Ramón Montiel Nuñez
  - Francisco Daniel Segovia
- - Alexis Toledo
+ - Alexis Toledo Exequiel
  - Renata Villalba Ruiz Diaz
 
 **Grupo**: 29   
