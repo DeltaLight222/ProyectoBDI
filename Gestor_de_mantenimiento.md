@@ -128,7 +128,7 @@ Actualmente, la gestión de mantenimiento de maquinaria presenta diversas limita
 ## CAPÍTULO IV: DESARROLLO DEL TEMA / PRESENTACIÓN DE RESULTADOS 
 
 ### Diagrama relacional
-![diagrama_relacional](https://github.com/DeltaLight222/ProyectoBDI/blob/main/doc/image_relational.png)
+![diagrama_relacional](https://github.com/DeltaLight222/ProyectoBDI/blob/main/doc/Diagrama__ProyectoSGM.png)
 
 ### Diccionario de datos
 
