@@ -1,5 +1,5 @@
 USE ProyectoSGM;
-
+GO
 -- Marcas
 INSERT INTO Marca (nombre) VALUES ('Caterpillar'), ('Komatsu'), ('John Deere');
 
