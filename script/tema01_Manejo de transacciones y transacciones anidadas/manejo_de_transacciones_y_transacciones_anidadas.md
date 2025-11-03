@@ -1,59 +1,49 @@
-# Manejo de transacciones y transacciones anidadas en SQL
+# Tema 1 — Manejo de transacciones y transacciones anidadas en SQL
 
- El manejo de transacciones es una parte esencial de los sistemas de bases de datos. Garantiza que las operaciones sobre los datos se ejecuten de forma segura, coherente y confiable, manteniendo la integridad de la información en todo momento.
+El manejo de transacciones es una parte fundamental de los sistemas de bases de datos, ya que garantiza que las operaciones sobre los datos se realicen de forma segura, coherente y confiable. Su objetivo principal es mantener la integridad de la información en todo momento.
 
- Una transacción es una unidad lógica de trabajo que agrupa varias operaciones (como INSERT, UPDATE, o DELETE). El principio fundamental es que todas estas operaciones deben ejecutarse en su totalidad (éxito) o no ejecutarse en absoluto (fallo/reversión). Esto asegura que la base de datos nunca quede en un estado intermedio o inconsistente.
+Una **transacción** es una unidad lógica de trabajo que agrupa varias operaciones (como `INSERT`, `UPDATE` o `DELETE`). El principio esencial es que todas estas operaciones deben ejecutarse **por completo** (éxito) o **no ejecutarse en absoluto** (fallo o reversión). De esta manera, se evita que la base de datos quede en un estado intermedio o inconsistente.
 
- ## Propiedades ACID
+---
 
- Tema 4 — Manejo de transacciones y transacciones anidadas en SQL
+## Propiedades ACID
 
-El manejo de transacciones es una parte esencial de los sistemas de bases de datos. Garantiza que las operaciones sobre los datos se ejecuten de forma segura, coherente y confiable, manteniendo la integridad de la información en todo momento.
+El correcto funcionamiento de las transacciones se basa en las propiedades **ACID**, que aseguran que las operaciones sean confiables y consistentes:
 
-Una transacción es una unidad lógica de trabajo que agrupa varias operaciones (como INSERT, UPDATE, o DELETE). El principio fundamental es que todas estas operaciones deben ejecutarse en su totalidad (éxito) o no ejecutarse en absoluto (fallo/reversión). Esto asegura que la base de datos nunca quede en un estado intermedio o inconsistente.
+- **Atomicidad (Atomicity):** Todas las operaciones dentro de la transacción se completan correctamente (`COMMIT`) o se deshacen por completo (`ROLLBACK`). Es decir, se cumple el principio del “todo o nada”.
+  
+- **Consistencia (Consistency):** La base de datos pasa de un estado válido a otro, respetando todas las reglas, restricciones y disparadores (triggers) definidos.
+  
+- **Aislamiento (Isolation):** Las transacciones concurrentes (que se ejecutan al mismo tiempo) no interfieren entre sí. Cada transacción se comporta como si fuera la única en ejecución.
+  
+- **Durabilidad (Durability):** Una vez confirmada una transacción (`COMMIT`), los cambios se mantienen de forma permanente, incluso si ocurre un fallo del sistema, un corte de energía o un reinicio.
 
-Propiedades ACID
-
-El correcto funcionamiento de las transacciones se basa en las propiedades ACID:
-
-    Atomicidad (Atomicity): Todas las operaciones dentro de la transacción se completan correctamente (COMMIT) o se deshacen por completo (ROLLBACK). Es un "todo o nada".
-
-    Consistencia (Consistency): La base de datos pasa de un estado válido a otro estado válido, respetando todas las reglas, restricciones y triggers definidos.
-
-    Aislamiento (Isolation): Las transacciones concurrentes (que se ejecutan al mismo tiempo) no interfieren entre sí. Para una transacción, pareciera que se está ejecutando sola.
-
-    Durabilidad (Durability): Una vez que la transacción ha sido confirmada (COMMIT), los cambios persisten de forma permanente, incluso ante fallos del sistema, cortes de energía o reinicios.
 
 ## ROLLBACK
 
-La instrucción ROLLBACK (o ROLLBACK TRANSACTION) es un comando de SQL que se utiliza para deshacer por completo todas las modificaciones de datos realizadas desde el inicio de la transacción más reciente, o desde el último COMMIT.
+La instrucción `ROLLBACK` (o `ROLLBACK TRANSACTION`) se utiliza para **deshacer** todas las modificaciones de datos realizadas desde el inicio de la transacción actual o desde el último `COMMIT`.
 
-Su propósito principal es garantizar la propiedad de Atomicidad al revertir la base de datos a su último estado confirmado (committed state), eliminando así cualquier cambio "tentativo" o temporal provocado por las operaciones de la transacción actual. Esto es fundamental para mantener la integridad de los datos en caso de que ocurran errores (fallo de hardware, violación de una restricción, excepción en el código, etc.) o se decidan cancelar los cambios antes de su confirmación.
-
-    Función: Deshace permanentemente todos los cambios dentro de una transacción activa.
-
-    Mecanismo: Vuelve al estado de la base de datos que existía justo después de la última instrucción COMMIT o ROLLBACK ejecutada.
+Su función es garantizar la **atomicidad**, devolviendo la base de datos a su último estado confirmado y eliminando cualquier cambio temporal realizado por la transacción en curso. Su mecanismo consiste en restaurar la base de datos al estado que tenía justo después del último `COMMIT` o `ROLLBACK` ejecutado.  
+Esto resulta esencial cuando ocurre un error (por ejemplo, una violación de restricción o una excepción en el código) o cuando se decide cancelar los cambios antes de confirmarlos.
 
 # Transacciones anidadas y SAVEPOINTs
 
-## Transacciones Anidadas
+## Transacciones anidadas
 
-Una transacción anidada se produce cuando se inicia una nueva transacción dentro de otra.
+Una **transacción anidada** ocurre cuando se inicia una nueva transacción dentro de otra.
 
-En sistemas como SQL Server o PostgreSQL, aunque es posible usar múltiples BEGIN TRANSACTION, a menudo la realidad es que todas dependen de la transacción más externa o principal:
+En sistemas como **SQL Server** o **PostgreSQL**, aunque es posible ejecutar múltiples `BEGIN TRANSACTION`, en la práctica todas dependen de la transacción principal o externa:
 
-    Solo el primer ROLLBACK revierte todo el bloque, independientemente del nivel de anidación.
+- Solo el primer `ROLLBACK` revierte todo el bloque, sin importar el nivel de anidación.  
+- Solo el último `COMMIT` confirma los cambios de toda la transacción.
 
-    Solo el último COMMIT confirma los cambios de todo el bloque.
+Esto permite realizar pruebas o validaciones parciales dentro de un bloque más grande, definiendo puntos de control sin necesidad de revertir toda la transacción si no es necesario.
 
-Esto permite realizar pruebas parciales dentro de un bloque más grande, o definir puntos de recuperación sin afectar la transacción completa si no es necesario revertir todo.
 
-Puntos de Guardado (SAVEPOINT)
+## Puntos de guardado (SAVEPOINT)
 
-Cuando se desea revertir solo una parte de una transacción, sin cancelar todo el bloque de operaciones, se utilizan los SAVEPOINTS o puntos de guardado.
+Cuando se desea revertir solo una parte de una transacción sin cancelar todo el bloque de operaciones, se utilizan los **SAVEPOINTs** o **puntos de guardado**.
 
-    Un SAVEPOINT marca un punto intermedio dentro de una transacción.
+Un `SAVEPOINT` marca un punto intermedio dentro de una transacción, y su función es permitir que se reviertan únicamente las operaciones realizadas después de ese punto. Su mecanismo se basa en la instrucción `ROLLBACK TO SAVEPOINT nombre_punto`, que “retrocede” hasta el punto definido, descartando los cambios posteriores mientras mantiene los anteriores activos dentro de la transacción.
 
-    Con la instrucción ROLLBACK TO SAVEPOINT NombrePunto, puedes "retroceder" hasta ese punto anterior, descartando solo las operaciones realizadas después del SAVEPOINT, mientras que las operaciones anteriores al punto permanecen activas en la transacción.
-
-Esto es extremadamente útil en procedimientos complejos donde varias operaciones dependen de verificaciones intermedias.
+Esto resulta muy útil en procedimientos complejos, donde se ejecutan múltiples operaciones dependientes y se requiere controlar el flujo sin perder todo el progreso de la transacción principal.
