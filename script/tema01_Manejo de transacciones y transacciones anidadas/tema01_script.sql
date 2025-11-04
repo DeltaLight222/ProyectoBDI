@@ -47,7 +47,7 @@ BEGIN TRY
     BEGIN TRANSACTION;
 
     INSERT INTO Marca (nombre)
-    VALUES ('Komatsu');
+    VALUES ('Makita');
 
     DECLARE @idMarca2 INT = SCOPE_IDENTITY();
 
@@ -70,6 +70,6 @@ GO
 -- 3. Verificación de consistencia
 -- =====================================
 
-SELECT * FROM Marca WHERE nombre = 'Hitachi';
+SELECT * FROM Marca WHERE nombre = 'Makita';
 SELECT * FROM Marca WHERE nombre = 'Hyundai Motors';
 GO
