@@ -47,7 +47,7 @@ BEGIN TRY
     BEGIN TRANSACTION;
 
     INSERT INTO Marca (nombre)
-    VALUES ('Hitachi');
+    VALUES ('Komatsu');
 
     DECLARE @idMarca2 INT = SCOPE_IDENTITY();
 
