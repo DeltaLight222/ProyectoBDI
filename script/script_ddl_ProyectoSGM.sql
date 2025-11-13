@@ -15,7 +15,6 @@ CREATE TABLE Establecimiento
   id_establecimiento INT IDENTITY(1,1) NOT NULL,
   nombre VARCHAR(100) NOT NULL,
   direccion VARCHAR(150) NOT NULL,
-  id_maquina INT NOT NULL,
   CONSTRAINT PK_Establecimiento PRIMARY KEY (id_establecimiento),
 );
 
