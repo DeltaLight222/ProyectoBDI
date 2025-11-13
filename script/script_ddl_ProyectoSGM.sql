@@ -5,31 +5,39 @@ CREATE TABLE Marca
   CONSTRAINT PK_Marca PRIMARY KEY (id_marca)
 );
 
-CREATE TABLE Maquina
-(
-  id_maquina INT IDENTITY(1,1) NOT NULL,
-  matricula CHAR(10) NOT NULL,
-  modelo VARCHAR(50) NOT NULL,
-  id_marca INT NOT NULL,
-  CONSTRAINT PK_Maquina PRIMARY KEY (id_maquina),
-  CONSTRAINT FK_Maquina_Marca FOREIGN KEY (id_marca) REFERENCES Marca(id_marca)
+CREATE TABLE Modelo (
+    id_modelo INT PRIMARY KEY, 
+    descripcion VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Establecimiento
 (
-  id_instalacion INT IDENTITY(1,1) NOT NULL,
+  id_establecimiento INT IDENTITY(1,1) NOT NULL,
   nombre VARCHAR(100) NOT NULL,
   direccion VARCHAR(150) NOT NULL,
   id_maquina INT NOT NULL,
-  CONSTRAINT PK_Establecimiento PRIMARY KEY (id_instalacion),
-  CONSTRAINT FK_Establecimiento_Maquina FOREIGN KEY (id_maquina) REFERENCES Maquina(id_maquina)
+  CONSTRAINT PK_Establecimiento PRIMARY KEY (id_establecimiento),
+);
+
+CREATE TABLE Maquina
+(
+  id_maquina INT IDENTITY(1,1) NOT NULL,
+  matricula CHAR(10) NOT NULL,
+  id_modelo INT NOT NULL, 
+  id_marca INT NOT NULL,
+  id_establecimiento INT NOT NULL,
+  
+  CONSTRAINT PK_Maquina PRIMARY KEY (id_maquina),
+  CONSTRAINT FK_Maquina_Marca FOREIGN KEY (id_marca) REFERENCES Marca(id_marca),
+  CONSTRAINT FK_Maquina_Modelo FOREIGN KEY (id_modelo) REFERENCES Modelo(id_modelo),
+  CONSTRAINT FK_Maquina_Establecimiento FOREIGN KEY (id_establecimiento) REFERENCES Establecimiento(id_establecimiento)
 );
 
 CREATE TABLE InstalacionTelefono
 (
   telefono VARCHAR(15) NOT NULL,
   id_instalacion INT NOT NULL,
-  CONSTRAINT FK_InstalacionTelefono_Establecimiento FOREIGN KEY (id_instalacion) REFERENCES Establecimiento(id_instalacion)
+  CONSTRAINT FK_InstalacionTelefono_Establecimiento FOREIGN KEY (id_instalacion) REFERENCES Establecimiento(id_establecimiento)
 );
 
 CREATE TABLE Repuesto
