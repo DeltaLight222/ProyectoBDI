@@ -34,13 +34,13 @@ CREATE TABLE Maquina
   CONSTRAINT FK_Maquina_Establecimiento FOREIGN KEY (id_establecimiento) REFERENCES Establecimiento(id_establecimiento)
 );
 
-CREATE TABLE InstalacionTelefono
+CREATE TABLE EstablecimientoTelefono
 (
   telefono VARCHAR(15) NOT NULL,
-  id_instalacion INT NOT NULL,
-  CONSTRAINT PK_InstalacionTelefono PRIMARY KEY (id_instalacion, telefono),
-  CONSTRAINT FK_InstalacionTelefono_Establecimiento 
-      FOREIGN KEY (id_instalacion) 
+  id_establecimiento INT NOT NULL,
+  CONSTRAINT PK_EstablecimientoTelefono PRIMARY KEY (id_establecimiento, telefono),
+  CONSTRAINT FK_EstablecimientoTelefonoo_Establecimiento 
+      FOREIGN KEY (id_establecimiento) 
       REFERENCES Establecimiento(id_establecimiento)
 );
 
