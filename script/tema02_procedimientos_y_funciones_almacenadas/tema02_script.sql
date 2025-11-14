@@ -1,6 +1,85 @@
 USE ProyectoSGM;
 GO
 
+ 
+--Realizar al menos tres procedimientos almacenados que permitan: Insertar, Modificar y borrar registros de alguna de las tablas del proyecto.
+
+--Procedimiento para insertar  un tecnico
+CREATE PROCEDURE sp_InsertarTecnico
+    @documento INT,
+    @nombre VARCHAR(50),
+    @apellido VARCHAR(50),
+    @fecha_nacimiento DATE,
+    @telefono VARCHAR(15),
+    @id_grupo INT
+AS
+BEGIN
+    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
+
+    INSERT INTO Tecnico (documento, nombre, apellido, fecha_nacimiento, telefono, id_grupo)
+    VALUES (@documento, @nombre, @apellido, @fecha_nacimiento, @telefono, @id_grupo);
+END;
+GO
+
+--Procedimiento para modificar un tecnico
+CREATE PROCEDURE sp_ModificarTecnico
+    @documento INT,
+    @nombre VARCHAR(50),
+    @apellido VARCHAR(50),
+    @fecha_nacimiento DATE,
+    @telefono VARCHAR(15),
+    @id_grupo INT
+AS
+BEGIN
+    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
+
+    UPDATE Tecnico
+    SET nombre = @nombre,
+        apellido = @apellido,
+        fecha_nacimiento = @fecha_nacimiento,
+        telefono = @telefono,
+        id_grupo = @id_grupo
+    WHERE documento = @documento;
+END;
+GO
+
+--Procedimiento para borrar un tecnico
+CREATE PROCEDURE sp_BorrarTecnico
+    @documento INT
+AS
+BEGIN
+    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
+
+    DELETE FROM Tecnico
+    WHERE documento = @documento;
+END;
+GO
+
+
+
+Insertar un lote de datos en las tablas mencionadas (guardar el script) con sentencias insert y otro lote invocando a los procedimientos creados.
+
+
+
+
+Realizar  update y delete sobre  algunos de los registros insertados  en esas tablas invocando a los procedimientos. 
+
+Desarrollar al menos tres funciones almacenadas. Por ej: calcular la edad, 
+
+Comparar la eficiencia de las operaciones directas versus el uso de procedimientos y funciones
+
+
+
+
+
+
+
+
+
+
+
+
+
 --(1) Tipo de tabla para pasar lista de repuestos al SP
  
 IF TYPE_ID('dbo.tvp_RepuestoId') IS NULL
