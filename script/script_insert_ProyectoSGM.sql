@@ -1,52 +1,56 @@
--- 1. MARCA
+------------------------------------------------------------
+-- INSERTS
+------------------------------------------------------------
+
+-- MARCA (5)
 INSERT INTO Marca (nombre) VALUES
-('Caterpillar'),
-('Komatsu'),
-('Volvo'),
+('Makita'),
+('Dewalt'),
+('Bosch'),
 ('Hitachi'),
-('John Deere');
+('Black & Decker');
 
--- 2. MODELO
-INSERT INTO Modelo (id_modelo, descripcion) VALUES
-(1, 'Excavadora 320D'),
-(2, 'Retroexcavadora WB93R'),
-(3, 'Cargadora L120H'),
-(4, 'Topadora D6R'),
-(5, 'Miniexcavadora ZX55U');
+-- MODELO (5)
+INSERT INTO Modelo (descripcion) VALUES
+('Modelo Industrial A1'),
+('Modelo Industrial B2'),
+('Modelo Doméstico C3'),
+('Modelo Alta Potencia D4'),
+('Modelo Liviano E5');
 
--- 3. ESTABLECIMIENTO
+-- ESTABLECIMIENTO (5)
 INSERT INTO Establecimiento (nombre, direccion) VALUES
-('Taller Central', 'Av. San Martín 1020'),
-('Planta Norte', 'Ruta 11 Km 22'),
-('Base Sur', 'Calle 25 de Mayo 845'),
-('Depósito Industrial', 'Av. Belgrano 1440'),
-('Centro Logístico', 'Av. Rivadavia 2300');
+('Planta Central', 'Av. Corrientes 1234'),
+('Taller Norte', 'Ruta 12 Km 8'),
+('Depósito Sur', 'Calle 45 Nº 876'),
+('Sucursal Este', 'Av. Libertad 3000'),
+('Puesto Oeste', 'Calle Mendoza 99');
 
--- 4. MAQUINA
+-- MAQUINA (5)
 INSERT INTO Maquina (matricula, id_modelo, id_marca, id_establecimiento) VALUES
-('CAT001A', 1, 1, 1),
-('KMT002B', 2, 2, 2),
-('VOL003C', 3, 3, 3),
-('HTC004D', 4, 4, 4),
-('JDN005E', 5, 5, 5);
+('MAQ0000001', 1, 1, 1),
+('MAQ0000002', 2, 2, 2),
+('MAQ0000003', 3, 3, 3),
+('MAQ0000004', 4, 4, 4),
+('MAQ0000005', 5, 5, 5);
 
--- 5. INSTALACION TELEFONO
+-- INSTALACION TELEFONO (5)
 INSERT INTO InstalacionTelefono (telefono, id_instalacion) VALUES
-('3794123456', 1),
-('3794234567', 2),
-('3794345678', 3),
-('3794456789', 4),
-('3794567890', 5);
+('3794000001', 1),
+('3794000002', 1),
+('3794111111', 2),
+('3794222222', 3),
+('3794333333', 4);
 
--- 6. REPUESTO
+-- REPUESTO (5)
 INSERT INTO Repuesto (descripcion) VALUES
-('Filtro de aceite'),
-('Batería 12V 180Ah'),
+('Filtro de aire'),
 ('Correa de transmisión'),
-('Bomba hidráulica'),
-('Filtro de aire');
+('Bujía'),
+('Carcasa metálica'),
+('Rodamiento reforzado');
 
--- 7. MAQUINA_REPUESTO
+-- MAQUINA_REPUESTO (5)
 INSERT INTO Maquina_Repuesto (id_maquina, id_repuesto) VALUES
 (1, 1),
 (1, 2),
@@ -54,50 +58,50 @@ INSERT INTO Maquina_Repuesto (id_maquina, id_repuesto) VALUES
 (3, 4),
 (4, 5);
 
--- 8. DIAGNOSTICO
+-- DIAGNOSTICO (5)
 INSERT INTO Diagnostico (descripcion) VALUES
-('Falla en sistema hidráulico'),
-('Pérdida de potencia del motor'),
-('Vibración en transmisión'),
+('Falla en el sistema eléctrico'),
+('Vibración excesiva'),
+('Pérdida de potencia'),
 ('Sobrecalentamiento'),
-('Ruido anormal en dirección');
+('Ruido anormal en motor');
 
--- 9. GRUPO
+-- GRUPO (5)
 INSERT INTO Grupo (cant_integrantes) VALUES
 (3),
 (4),
 (5),
-(3),
-(2);
+(2),
+(6);
 
--- 10. REVISION
+-- REVISION (5)
 INSERT INTO Revision (fecha_inicio, fecha_fin, id_diagnostico, id_grupo) VALUES
-('2025-01-10', '2025-01-11', 1, 1),
-('2025-02-05', '2025-02-07', 2, 2),
-('2025-03-15', '2025-03-16', 3, 3),
-('2025-04-01', '2025-04-02', 4, 4),
-('2025-04-20', '2025-04-21', 5, 5);
+('2025-01-10', NULL, 1, 1),
+('2025-01-12', NULL, 2, 2),
+('2025-01-13', NULL, 3, 3),
+('2025-01-14', NULL, 4, 4),
+('2025-01-15', NULL, 5, 5);
 
--- 11. REPARACION
+-- REPARACION (5)
 INSERT INTO Reparacion (fecha_inicio, fecha_fin, id_revision, id_grupo) VALUES
-('2025-01-12', '2025-01-14', 1, 1),
-('2025-02-08', '2025-02-10', 2, 2),
-('2025-03-17', '2025-03-18', 3, 3),
-('2025-04-03', '2025-04-05', 4, 4),
-('2025-04-22', '2025-04-23', 5, 5);
+('2025-01-11', NULL, 1, 1),
+('2025-01-13', NULL, 2, 2),
+('2025-01-14', NULL, 3, 3),
+('2025-01-16', NULL, 4, 4),
+('2025-01-17', NULL, 5, 5);
 
--- 12. TECNICO
+-- TECNICO (5)
 INSERT INTO Tecnico (documento, nombre, apellido, fecha_nacimiento, telefono, id_grupo) VALUES
-(35000111, 'Juan', 'Pérez', '1990-05-10', '3794112233', 1),
-(36000222, 'María', 'Gómez', '1988-07-15', '3794223344', 2),
-(37000333, 'Carlos', 'López', '1992-09-21', '3794334455', 3),
-(38000444, 'Ana', 'Fernández', '1995-12-02', '3794445566', 4),
-(39000555, 'Lucía', 'Martínez', '1998-03-30', '3794556677', 5);
+(10000001, 'Luis', 'Fernandez', '1990-05-01', '3794550001', 1),
+(10000002, 'Jorge', 'Gomez', '1988-02-10', '3794550002', 2),
+(10000003, 'Marcos', 'Mendez', '1992-11-20', '3794550003', 3),
+(10000004, 'Carlos', 'Sosa', '1995-07-15', '3794550004', 4),
+(10000005, 'Pedro', 'Lopez', '1985-03-22', '3794550005', 5);
 
--- 13. REPARACION_REPUESTO
-INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES
+-- REPARACION_REPUESTO (5)
+INSERT INTO Reparacion_Repuesto (id_reparacion, id_repuesto) VALUES
 (1, 1),
-(2, 1),
-(3, 2),
-(4, 3),
-(5, 4);
+(1, 3),
+(2, 2),
+(3, 4),
+(4, 5);

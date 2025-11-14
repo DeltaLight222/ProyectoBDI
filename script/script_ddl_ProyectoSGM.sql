@@ -6,9 +6,11 @@ CREATE TABLE Marca
 );
 
 CREATE TABLE Modelo (
-    id_modelo INT PRIMARY KEY, 
-    descripcion VARCHAR(100) NOT NULL
+    id_modelo INT IDENTITY(1,1) NOT NULL,
+    descripcion VARCHAR(100) NOT NULL,
+    CONSTRAINT PK_Modelo PRIMARY KEY (id_modelo)
 );
+
 
 CREATE TABLE Establecimiento
 (
@@ -36,8 +38,12 @@ CREATE TABLE InstalacionTelefono
 (
   telefono VARCHAR(15) NOT NULL,
   id_instalacion INT NOT NULL,
-  CONSTRAINT FK_InstalacionTelefono_Establecimiento FOREIGN KEY (id_instalacion) REFERENCES Establecimiento(id_establecimiento)
+  CONSTRAINT PK_InstalacionTelefono PRIMARY KEY (id_instalacion, telefono),
+  CONSTRAINT FK_InstalacionTelefono_Establecimiento 
+      FOREIGN KEY (id_instalacion) 
+      REFERENCES Establecimiento(id_establecimiento)
 );
+
 
 CREATE TABLE Repuesto
 (
@@ -50,9 +56,16 @@ CREATE TABLE Maquina_Repuesto
 (
   id_maquina INT NOT NULL,
   id_repuesto INT NOT NULL,
-  CONSTRAINT FK_MaquinaRepuesto_Maquina FOREIGN KEY (id_maquina) REFERENCES Maquina(id_maquina),
-  CONSTRAINT FK_MaquinaRepuesto_Repuesto FOREIGN KEY (id_repuesto) REFERENCES Repuesto(id_repuesto)
+
+  CONSTRAINT PK_Maquina_Repuesto PRIMARY KEY (id_maquina, id_repuesto),
+
+  CONSTRAINT FK_MaquinaRepuesto_Maquina 
+      FOREIGN KEY (id_maquina) REFERENCES Maquina(id_maquina),
+
+  CONSTRAINT FK_MaquinaRepuesto_Repuesto 
+      FOREIGN KEY (id_repuesto) REFERENCES Repuesto(id_repuesto)
 );
+
 
 CREATE TABLE Diagnostico
 (
@@ -108,6 +121,12 @@ CREATE TABLE Reparacion_Repuesto
 (
   id_repuesto INT NOT NULL,
   id_reparacion INT NOT NULL,
-  CONSTRAINT FK_ReparacionRepuesto_Repuesto FOREIGN KEY (id_repuesto) REFERENCES Repuesto(id_repuesto),
-  CONSTRAINT FK_ReparacionRepuesto_Reparacion FOREIGN KEY (id_reparacion) REFERENCES Reparacion(id_reparacion)
+
+  CONSTRAINT PK_Reparacion_Repuesto PRIMARY KEY (id_reparacion, id_repuesto),
+
+  CONSTRAINT FK_ReparacionRepuesto_Repuesto 
+      FOREIGN KEY (id_repuesto) REFERENCES Repuesto(id_repuesto),
+
+  CONSTRAINT FK_ReparacionRepuesto_Reparacion 
+      FOREIGN KEY (id_reparacion) REFERENCES Reparacion(id_reparacion)
 );
