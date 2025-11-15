@@ -26,7 +26,7 @@ CREATE TABLE Maquina
   matricula CHAR(10) NOT NULL,
   id_modelo INT NOT NULL, 
   id_marca INT NOT NULL,
-  id_establecimiento INT NOT NULL,
+  id_establecimiento INT NULL,
   
   CONSTRAINT PK_Maquina PRIMARY KEY (id_maquina),
   CONSTRAINT FK_Maquina_Marca FOREIGN KEY (id_marca) REFERENCES Marca(id_marca),
@@ -86,7 +86,7 @@ CREATE TABLE Revision
   id_revision INT IDENTITY(1,1) NOT NULL,
   fecha_inicio DATE NOT NULL,
   fecha_fin DATE,
-  id_diagnostico INT NOT NULL,
+  id_diagnostico INT NULL,
   id_grupo INT NOT NULL,
   id_maquina INT NOT NULL,
   
