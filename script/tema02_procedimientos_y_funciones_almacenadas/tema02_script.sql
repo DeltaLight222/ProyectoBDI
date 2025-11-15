@@ -7,10 +7,6 @@ GO
 
 --Procedimiento para agregar una reparacion con repuesto (el id_repuesto se pasa por parametro y actualizar la tabla Reparacion_Repuesto)
 
-IF OBJECT_ID('AgregarReparacionConRepuesto', 'P') IS NOT NULL
-    DROP PROCEDURE AgregarReparacionConRepuesto;
-GO
-
 CREATE PROCEDURE AgregarReparacionConRepuesto
     @fecha_inicio DATE,
     @fecha_fin DATE = NULL,
@@ -63,7 +59,7 @@ BEGIN
 END
 GO
 
---Procedimiento para eliminar una reparacion junto con sus repuestos asociados
+--Procedimiento para eliminar una reparacion junto con su relacion a un repuesto asociado
 CREATE PROCEDURE EliminarReparacionConRepuesto
     @id_reparacion INT
 AS
@@ -133,6 +129,22 @@ INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (5, @NuevoId
 COMMIT TRANSACTION;
 PRINT '--- FIN: Inserción Manual ---';
 
+PRINT '--- INICIO: INFORME DE REPARACIONES (INSERCIÓN MANUAL) ---';
+SELECT
+    R.id_reparacion,
+    R.fecha_inicio,
+    R.id_revision,
+    R.id_grupo,
+    RR.id_repuesto
+FROM
+    Reparacion AS R
+INNER JOIN
+    Reparacion_Repuesto AS RR ON R.id_reparacion = RR.id_reparacion
+WHERE
+    R.fecha_inicio BETWEEN '2025-11-14' AND '2025-11-23' -- Filtrar por el rango de fechas de la inserción manual
+ORDER BY
+    R.id_reparacion;
+PRINT '--- FIN: INFORME DE REPARACIONES (INSERCIÓN MANUAL) ---';
 
 --------------------------------------------------------------------------------------
 -- INSERTANDO DATOS DE PRUEBA EN LA TABLA REPARACION Y REPARACION_REPUESTO LLMANDO A PROCEDURE AgregarReparacionConRepuesto
@@ -161,6 +173,23 @@ EXEC AgregarReparacionConRepuesto '2025-12-09', NULL, 4, 5, 2;
 
 EXEC AgregarReparacionConRepuesto '2025-12-10', NULL, 5, 1, 1;
 PRINT '--- FIN: Inserción con Stored Procedure ---';
+
+PRINT '--- INICIO: INFORME DE REPARACIONES (INSERCIÓN CON PROCEDURE) ---';
+SELECT
+    R.id_reparacion,
+    R.fecha_inicio,
+    R.id_revision,
+    R.id_grupo,
+    RR.id_repuesto
+FROM
+    Reparacion AS R
+INNER JOIN
+    Reparacion_Repuesto AS RR ON R.id_reparacion = RR.id_reparacion
+WHERE
+    R.fecha_inicio BETWEEN '2025-12-01' AND '2025-12-10' -- Filtrar por el rango de fechas de la inserción con procedure
+ORDER BY
+    R.id_reparacion;
+PRINT '--- FIN: INFORME DE REPARACIONES (INSERCIÓN CON PROCEDURE) ---';
 
 -- Realizar  update y delete sobre  algunos de los registros insertados  en esas tablas invocando a los procedimientos. 
 
