@@ -197,8 +197,180 @@ SELECT
 FROM Reparacion_Repuesto
 WHERE id_reparacion IN (4, 5, 6);
 
+
+
 --Desarrollar al menos tres funciones almacenadas. Por ej: calcular la edad, 
 
+--Funcion que devuelve la cantidad de máquinas reparadas por un grupo identificado por su id.
+CREATE FUNCTION cantMaquinasReparadasGrupo
+(
+    @id_grupo INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @cantidad INT;
+
+    SELECT @cantidad = COUNT(DISTINCT rv.id_maquina)
+    FROM Grupo g
+    INNER JOIN Reparacion r
+        ON r.id_grupo = g.id_grupo
+    INNER JOIN Revision rv
+        ON rv.id_revision = r.id_revision
+    WHERE g.id_grupo = @id_grupo
+      AND r.fecha_fin IS NOT NULL         -- Reparación finalizada
+      AND rv.fecha_fin IS NOT NULL;       -- Revisión finalizada
+
+    RETURN @cantidad;
+END;
+GO
+
+--Función que devuelve una tabala con el historial de reparaciones de una máquina dada su id.
+CREATE FUNCTION getHistorialReparacionesMaquina (
+    @idMaquina INT
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT
+        MOD.descripcion AS [Modelo maquina],
+        M.matricula AS [Matricula maquina],
+        E.nombre AS [Nombre establecimiento],
+        R.fecha_inicio AS [Fecha inicio reparacion],
+        R.fecha_fin AS [Fecha fin reparacion],
+        G.id_grupo AS [ID grupo reparacion],
+        DI.descripcion AS [Descripcion diagnostico],
+        REP.descripcion AS [Repuesto utilizado]
+    FROM
+        Maquina M
+    INNER JOIN
+        Modelo MOD ON M.id_modelo = MOD.id_modelo
+    INNER JOIN
+        Revision REV ON M.id_maquina = REV.id_maquina
+    INNER JOIN
+        Reparacion R ON REV.id_revision = R.id_revision
+    LEFT JOIN
+        Establecimiento E ON M.id_establecimiento = E.id_establecimiento
+    LEFT JOIN
+        Diagnostico DI ON REV.id_diagnostico = DI.id_diagnostico
+    LEFT JOIN
+        Grupo G ON R.id_grupo = G.id_grupo
+    LEFT JOIN
+        Reparacion_Repuesto RR ON R.id_reparacion = RR.id_reparacion
+    LEFT JOIN
+        Repuesto REP ON RR.id_repuesto = REP.id_repuesto
+    WHERE
+        M.id_maquina = @idMaquina
+);
+
+--Ejemplo de ejecucion de la funcion con id_maquina=3
+SELECT *
+FROM dbo.getHistorialReparacionesMaquina(3);
+
+--Funcion que devuelve 1 si una máquina tiene reparaciones activas (sin fecha de fin) o 0 si no la tiene
+CREATE FUNCTION tieneReparacionActiva (@idMaquina INT)
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @ReparacionesActivas INT;
+    DECLARE @Resultado BIT;
+
+    -- Cuenta el número de reparaciones activas para la máquina dada
+    SELECT
+        @ReparacionesActivas = COUNT(R.id_reparacion)
+    FROM
+        Maquina M
+    INNER JOIN
+        Revision REV ON M.id_maquina = REV.id_maquina
+    INNER JOIN
+        Reparacion R ON REV.id_revision = R.id_revision
+    WHERE
+        M.id_maquina = @idMaquina
+        AND R.fecha_fin IS NULL; -- La fecha de fin NULL indica que la reparación está activa
+
+    -- Establece el resultado: 1 (True) si el conteo es mayor a 0, 0 (False) si es 0
+    IF @ReparacionesActivas > 0
+        SET @Resultado = 1;
+    ELSE
+        SET @Resultado = 0;
+
+    RETURN @Resultado;
+END;
+--Ejemplo de ejecucion de la funcion con id_maquina=3
+SELECT dbo.tieneReparacionActiva(3) AS [MaquinaEnReparacion];
+--Resultado:1 (tiene reparación activa)
 
 
+SET NOCOUNT ON;
 
+DECLARE @Iteraciones INT = 100;
+DECLARE @Contador INT = 1;
+DECLARE @GrupoID INT;
+DECLARE @Inicio DATETIME;
+DECLARE @Fin DATETIME;
+DECLARE @Cantidad INT; -- Variable para almacenar la cantidad de máquinas reparadas
+
+
+--Comparar la eficiencia de las operaciones directas versus el uso de procedimientos y funciones.
+
+--Funcion para comparar entre realizar operaciones directas y utilizar funciones almacenadas.
+-- 1 PRUEBA DE CONTEO DIRECTO (Manual)
+
+PRINT '--- INICIANDO PRUEBA DE CONTEO DIRECTO (MANUAL) ---';
+SET @Inicio = GETDATE();
+SET @Contador = 1;
+
+WHILE @Contador <= @Iteraciones
+BEGIN
+    -- Rota el ID de Grupo entre 1 y 5
+    SET @GrupoID = (@Contador - 1) % 5 + 1;
+
+    -- Ejecución Manual de la Consulta
+    SELECT @Cantidad = COUNT(DISTINCT rv.id_maquina)
+    FROM Grupo g
+    INNER JOIN Reparacion r
+        ON r.id_grupo = g.id_grupo
+    INNER JOIN Revision rv
+        ON rv.id_revision = r.id_revision
+    WHERE g.id_grupo = @GrupoID
+      AND r.fecha_fin IS NOT NULL
+      AND rv.fecha_fin IS NOT NULL;
+
+    -- Muestra el resultado de la iteración con el número de iteración
+    PRINT 'Manual - Grupo ID: ' + CAST(@GrupoID AS VARCHAR) + ' - Cantidad: ' + CAST(@Cantidad AS VARCHAR) + ' | Iteracion Nro: ' + CAST(@Contador AS VARCHAR);
+
+    SET @Contador = @Contador + 1;
+END
+
+SET @Fin = GETDATE();
+PRINT '--- FIN PRUEBA MANUAL ---';
+SELECT DATEDIFF(ms, @Inicio, @Fin) AS [Tiempo Total (ms) - Conteo Directo Manual];
+
+-- 2 PRUEBA DE FUNCIÓN ESCALAR (cantMaquinasReparadasGrupo)
+
+PRINT '--- INICIANDO PRUEBA DE FUNCIÓN ESCALAR (cantMaquinasReparadasGrupo) ---';
+SET @Inicio = GETDATE();
+SET @Contador = 1;
+
+WHILE @Contador <= @Iteraciones
+BEGIN
+    -- Rota el ID de Grupo entre 1 y 5
+    SET @GrupoID = (@Contador - 1) % 5 + 1;
+
+    -- Ejecución con la Función Escalar
+    SET @Cantidad = dbo.cantMaquinasReparadasGrupo(@GrupoID);
+
+    -- Muestra el resultado de la iteración con el número de iteración
+    PRINT 'Función - Grupo ID: ' + CAST(@GrupoID AS VARCHAR) + ' - Cantidad: ' + CAST(@Cantidad AS VARCHAR) + ' | Iteracion Nro: ' + CAST(@Contador AS VARCHAR);
+
+    SET @Contador = @Contador + 1;
+END
+
+SET @Fin = GETDATE();
+PRINT '--- FIN PRUEBA FUNCIÓN ESCALAR ---';
+SELECT DATEDIFF(ms, @Inicio, @Fin) AS [Tiempo Total (ms) - Función Escalar];
+
+--Resultado: 
+--Tiempo Total (ms) - Conteo Directo Manual: 16903
+--Tiempo Total (ms) - Función Escalar: 464
