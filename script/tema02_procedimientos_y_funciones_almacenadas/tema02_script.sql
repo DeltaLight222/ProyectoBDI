@@ -70,7 +70,7 @@ BEGIN
     DELETE FROM Reparacion_Repuesto
     WHERE id_reparacion = @id_reparacion;
 
-    -- Luego se la reparación
+    -- Luego se elimina la reparación
     DELETE FROM Reparacion
     WHERE id_reparacion = @id_reparacion;
 END
@@ -254,6 +254,9 @@ BEGIN
 END;
 GO
 
+--Ejemplo de ejecucion de la funcion con id_grupo=3
+SELECT dbo.cantMaquinasReparadasGrupo(3) AS [MaquinasReparadasPorGrupo];
+
 --Función que devuelve una tabala con el historial de reparaciones de una máquina dada su id.
 CREATE FUNCTION getHistorialReparacionesMaquina (
     @idMaquina INT
@@ -330,7 +333,9 @@ END;
 SELECT dbo.tieneReparacionActiva(3) AS [MaquinaEnReparacion];
 --Resultado:1 (tiene reparación activa)
 
-
+---------------------------
+--PRUEBA DE EFICIENCIA DE OPERACIONES DIRECTAS VS FUNCIONES
+---------------------------
 SET NOCOUNT ON;
 
 DECLARE @Iteraciones INT = 100;
