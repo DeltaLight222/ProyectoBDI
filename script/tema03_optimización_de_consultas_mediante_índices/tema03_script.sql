@@ -10,8 +10,8 @@ GO
 TRUNCATE TABLE Reparacion_Test;
 GO
 
--- Verificamos que esté vacía
-SELECT * 
+-- Verificamos que este vacía
+SELECT COUNT(*) 
 FROM Reparacion_Test;
 GO
 
@@ -38,7 +38,7 @@ BEGIN
         DATEADD(DAY, (num - 1) % 600, '2024-01-01'),           
         DATEADD(DAY, ((num - 1) % 600) + 1, '2024-01-01'),     
         @RevisionID,                                           
-        @GrupoID                                              
+        @GrupoID                                               
     FROM N;
 
     SET @i += @batchSize;
@@ -70,11 +70,12 @@ SET STATISTICS TIME OFF;
 SET STATISTICS IO OFF;
 GO
 -- tiempos devuelto sin indice
--- registros devuelto: 253384, CPU time = 250 ms,  elapsed time = 3355 ms
+--Table 'Reparacion_Test'. Scan count 1, logical reads 3345, physical reads 0, page server reads 0, read-ahead reads 3299, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+-- registros devuelto: 253384, CPU time = 297 ms,  elapsed time = 3054 ms.
 
 -- 3. Crear un índice agrupado sobre la columna fecha y repetir la búsqueda, registrando nuevamente plan de ejecución y tiempos. 
 
--- Crear índice clustered por fecha_inicio
+-- Crear indice clustered por fecha_inicio
 CREATE CLUSTERED INDEX IX_ReparacionTest_Fecha
 ON Reparacion_Test (fecha_inicio);
 GO
@@ -96,19 +97,22 @@ SET STATISTICS IO OFF;
 GO
 
 -- tiempos devuelto con indice agrupado
--- registros devuelto: 253384, CPU time = 187 ms,  elapsed time = 3366 ms.
+-- Table 'Reparacion_Test'. Scan count 1, logical reads 1102, physical reads 3, page server reads 0, read-ahead reads 1099, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+-- registros devuelto: 253384, CPU time = 172 ms,  elapsed time = 2872 ms.
 
 -- 4. Borrar el índice creado. 
 
--- Eliminamos el índice clustered anterior
+-- Eliminamos el indice clustered anterior
 DROP INDEX IX_ReparacionTest_Fecha ON Reparacion_Test;
 GO
 
 -- 5. Crear otro índice agrupado sobre la columna fecha incluyendo columnas adicionales y repetir la búsqueda, registrando resultados. 
 
--- Creamos un índice agrupado mas columna adicional
-CREATE CLUSTERED INDEX IX_ReparacionTest_Fecha_Extendido
-ON Reparacion_Test (fecha_inicio, fecha_fin, id_grupo, id_revision);
+-- Crear indice nonclustered por fecha_inicio con columnas incluidas
+CREATE NONCLUSTERED INDEX IX_ReparacionTest_FechaInicio_NC
+ON Reparacion_Test(fecha_inicio)
+INCLUDE (id_revision, id_grupo, fecha_fin);
+GO
 
 CHECKPOINT;
 DBCC DROPCLEANBUFFERS;
@@ -126,11 +130,29 @@ SET STATISTICS TIME OFF;
 SET STATISTICS IO OFF;
 GO
 
--- tiempos devuelto con indice mas columna adicional
--- registros devuelto: 253384, CPU time = 141 ms,  elapsed time = 2929 ms.
+-- tiempos devuelto con indice nonclustered por fecha_inicio con columnas incluidas
+-- Table 'Reparacion_Test'. Scan count 1, logical reads 4330, physical reads 0, page server reads 0, read-ahead reads 4330, page server read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob page server reads 0, lob read-ahead reads 0, lob page server read-ahead reads 0.
+-- registros devuelto: 253384, CPU time = 235 ms,  elapsed time = 2971 ms.
 
--- Eliminamos el índice con columna adicional
-DROP INDEX IX_ReparacionTest_Fecha_Extendido ON Reparacion_Test;
+-- Eliminamos el indice nonclustered por fecha_inicio con columnas incluidas
+DROP INDEX IX_ReparacionTest_FechaInicio_NC ON Reparacion_Test;
 DROP TABLE Reparacion_Test; -- eliminamos la tabla Reparacion_Test
 GO
+
+-- 6. Expresar conclusiones en base a la información estudiada y las buenas prácticas de uso de índices. 
+
+/*
+A partir de las pruebas realizadas se observo que la consulta sin indice realizo una gran cantidad de lecturas lógicas (3345) 
+y presento tiempos de ejecución elevados, lo que indica que realizo un escaneo completo de la tabla.
+
+La creacion de un indice agrupado sobre fecha_inicio mejoro notablemente el rendimiento: las lecturas logicas se redujeron a 1102 
+y tanto el tiempo de CPU como el tiempo total disminuyeron. Esto demuestra que el indice clustered fue eficaz al ordenar fisicamente
+la tabla según la columna utilizada en la consulta, optimizando el acceso a los datos.
+
+En cambio, el indice nonclustered con columnas incluidas no resulto beneficioso para este caso. Las lecturas logicas aumentaron a 4330 
+y los tiempos fueron similares a los de la consulta sin indice.
+
+En conclusión, el índice agrupado fue la opción más eficiente para esta consulta , mientras que el índice nonclustered no ofreció
+un mejor rendimiento.
+*/
 
