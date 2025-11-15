@@ -88,9 +88,12 @@ CREATE TABLE Revision
   fecha_fin DATE,
   id_diagnostico INT NOT NULL,
   id_grupo INT NOT NULL,
+  id_maquina INT NOT NULL,
+  
   CONSTRAINT PK_Revision PRIMARY KEY (id_revision),
   CONSTRAINT FK_Revision_Diagnostico FOREIGN KEY (id_diagnostico) REFERENCES Diagnostico(id_diagnostico),
-  CONSTRAINT FK_Revision_Grupo FOREIGN KEY (id_grupo) REFERENCES Grupo(id_grupo)
+  CONSTRAINT FK_Revision_Grupo FOREIGN KEY (id_grupo) REFERENCES Grupo(id_grupo),
+  CONSTRAINT FK_Revision_Maquina FOREIGN KEY (id_maquina) REFERENCES Maquina(id_maquina)
 );
 
 CREATE TABLE Reparacion

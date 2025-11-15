@@ -1,129 +1,129 @@
 ---------------------------------------------------------
--- MARCA (5 registros)
+-- INSERTS: Marca
 ---------------------------------------------------------
 INSERT INTO Marca (nombre) VALUES
 ('Caterpillar'),
-('John Deere'),
 ('Komatsu'),
+('John Deere'),
 ('Volvo'),
 ('Hitachi');
 
 ---------------------------------------------------------
--- MODELO (5 registros)
+-- INSERTS: Modelo
 ---------------------------------------------------------
 INSERT INTO Modelo (descripcion) VALUES
 ('Excavadora ZX200'),
-('Pala Cargadora 980H'),
 ('Retroexcavadora 310L'),
-('Minicargadora S450'),
-('Topadora D65EX');
+('Pala Cargadora L90'),
+('Topadora D6'),
+('Grúa Hidráulica GH500');
 
 ---------------------------------------------------------
--- ESTABLECIMIENTO (5 registros)
+-- INSERTS: Establecimiento
 ---------------------------------------------------------
 INSERT INTO Establecimiento (nombre, direccion) VALUES
-('Taller Central', 'Av. Industrial 123'),
-('Depósito Norte', 'Ruta 11 Km 14'),
-('Base Operativa Sur', 'Calle 45 Nº 2200'),
-('Centro Logístico Oeste', 'Autopista 9 Km 33'),
-('Planta Principal', 'Parque Industrial Sector B');
+('Depósito Central', 'Av. Siempre Viva 123'),
+('Planta Norte', 'Ruta 8 Km 45'),
+('Planta Sur', 'Camino del Álamo 2500'),
+('Base Operativa Este', 'Calle Corrientes 555'),
+('Base Operativa Oeste', 'Av. Libertad 900');
 
 ---------------------------------------------------------
--- ESTABLECIMIENTO TELEFONO (2 teléfonos por cada uno)
----------------------------------------------------------
-INSERT INTO EstablecimientoTelefono (telefono, id_establecimiento) VALUES
-('3794123456', 1), ('3794987654', 1),
-('3794111122', 2), ('3794222233', 2),
-('3794333344', 3), ('3794444455', 3),
-('3794555566', 4), ('3794666677', 4),
-('3794777788', 5), ('3794888899', 5);
-
----------------------------------------------------------
--- MAQUINA (5 registros)
+-- INSERTS: Maquina
 ---------------------------------------------------------
 INSERT INTO Maquina (matricula, id_modelo, id_marca, id_establecimiento) VALUES
-('MAQ0000001', 1, 1, 1),
-('MAQ0000002', 2, 2, 2),
-('MAQ0000003', 3, 3, 3),
-('MAQ0000004', 4, 4, 4),
-('MAQ0000005', 5, 5, 5);
+('MAQ0001', 1, 1, 1),
+('MAQ0002', 2, 3, 2),
+('MAQ0003', 3, 4, 3),
+('MAQ0004', 4, 2, 4),
+('MAQ0005', 5, 5, 5);
 
 ---------------------------------------------------------
--- REPUESTO (5 registros)
+-- INSERTS: EstablecimientoTelefono
+---------------------------------------------------------
+INSERT INTO EstablecimientoTelefono (telefono, id_establecimiento) VALUES
+('1111-1111', 1),
+('2222-2222', 2),
+('3333-3333', 3),
+('4444-4444', 4),
+('5555-5555', 5);
+
+---------------------------------------------------------
+-- INSERTS: Repuesto
 ---------------------------------------------------------
 INSERT INTO Repuesto (descripcion) VALUES
 ('Filtro de aceite'),
+('Batería industrial'),
+('Juego de orugas'),
 ('Bomba hidráulica'),
-('Kit de correas'),
-('Filtro de aire'),
-('Motor de arranque');
+('Radiador reforzado');
 
 ---------------------------------------------------------
--- MAQUINA_REPUESTO (cada máquina usa un repuesto distinto)
+-- INSERTS: Maquina_Repuesto
 ---------------------------------------------------------
 INSERT INTO Maquina_Repuesto (id_maquina, id_repuesto) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,5);
 
 ---------------------------------------------------------
--- DIAGNOSTICO (5 registros)
+-- INSERTS: Diagnostico
 ---------------------------------------------------------
 INSERT INTO Diagnostico (descripcion) VALUES
 ('Falla en sistema hidráulico'),
+('Desgaste de orugas'),
 ('Pérdida de potencia'),
-('Problemas eléctricos'),
-('Ruidos en transmisión'),
-('Mantenimiento preventivo requerido');
+('Ruidos anómalos en motor'),
+('Falla eléctrica intermitente');
 
 ---------------------------------------------------------
--- GRUPO (5 registros)
+-- INSERTS: Grupo
 ---------------------------------------------------------
 INSERT INTO Grupo (cant_integrantes) VALUES
 (3),
 (4),
 (2),
 (5),
-(3);
+(6);
 
 ---------------------------------------------------------
--- REVISION (5 registros)
+-- INSERTS: Revision
 ---------------------------------------------------------
-INSERT INTO Revision (fecha_inicio, fecha_fin, id_diagnostico, id_grupo) VALUES
-('2024-01-05', '2024-01-07', 1, 1),
-('2024-02-10', '2024-02-12', 2, 2),
-('2024-03-15', NULL, 3, 3),
-('2024-04-01', '2024-04-03', 4, 4),
-('2024-05-20', NULL, 5, 5);
+INSERT INTO Revision (fecha_inicio, fecha_fin, id_diagnostico, id_grupo, id_maquina) VALUES
+('2024-01-10', '2024-01-12', 1, 1, 1),
+('2024-02-05', '2024-02-06', 2, 2, 2),
+('2024-03-11', '2024-03-15', 3, 3, 3),
+('2024-04-02', NULL, 4, 4, 4),
+('2024-05-20', NULL, 5, 5, 5);
 
 ---------------------------------------------------------
--- REPARACION (5 registros)
+-- INSERTS: Reparacion
 ---------------------------------------------------------
 INSERT INTO Reparacion (fecha_inicio, fecha_fin, id_revision, id_grupo) VALUES
-('2024-01-08', '2024-01-12', 1, 1),
-('2024-02-13', '2024-02-16', 2, 2),
-('2024-03-20', NULL, 3, 3),
-('2024-04-04', '2024-04-06', 4, 4),
-('2024-05-22', NULL, 5, 5);
+('2024-01-13', '2024-01-16', 1, 1),
+('2024-02-07', '2024-02-10', 2, 2),
+('2024-03-16', '2024-03-20', 3, 3),
+('2024-04-03', NULL, 4, 4),
+('2024-05-21', NULL, 5, 5);
 
 ---------------------------------------------------------
--- TECNICO (5 registros)
+-- INSERTS: Tecnico
 ---------------------------------------------------------
 INSERT INTO Tecnico (documento, nombre, apellido, fecha_nacimiento, telefono, id_grupo) VALUES
-(30111222, 'Carlos', 'Gómez', '1985-03-10', '3794000011', 1),
-(30222333, 'María', 'López', '1990-07-22', '3794000022', 2),
-(30333444, 'Javier', 'Martínez', '1988-12-05', '3794000033', 3),
-(30444555, 'Sandra', 'Torres', '1992-01-15', '3794000044', 4),
-(30555666, 'Lucas', 'Fernández', '1984-09-09', '3794000055', 5);
+(10100100, 'Carlos', 'Pérez', '1985-04-12', '1160000001', 1),
+(20200200, 'Lucía', 'Gómez', '1990-09-22', '1160000002', 2),
+(30300300, 'Marcos', 'López', '1982-11-03', '1160000003', 3),
+(40400400, 'Ana', 'Martínez', '1995-01-14', '1160000004', 4),
+(50500500, 'Jorge', 'Fernández', '1988-07-08', '1160000005', 5);
 
 ---------------------------------------------------------
--- REPARACION_REPUESTO (cada reparación usa un repuesto)
+-- INSERTS: Reparacion_Repuesto
 ---------------------------------------------------------
 INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+(1,1),
+(2,2),
+(3,3),
+(4,4),
+(5,5);

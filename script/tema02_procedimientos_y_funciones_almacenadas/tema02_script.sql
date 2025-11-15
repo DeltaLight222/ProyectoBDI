@@ -4,280 +4,201 @@ GO
  
 --Realizar al menos tres procedimientos almacenados que permitan: Insertar, Modificar y borrar registros de alguna de las tablas del proyecto.
 
---Procedimiento para insertar  un tecnico
-CREATE PROCEDURE sp_InsertarTecnico
-    @documento INT,
-    @nombre VARCHAR(50),
-    @apellido VARCHAR(50),
-    @fecha_nacimiento DATE,
-    @telefono VARCHAR(15),
-    @id_grupo INT
-AS
-BEGIN
-    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
 
-    INSERT INTO Tecnico (documento, nombre, apellido, fecha_nacimiento, telefono, id_grupo)
-    VALUES (@documento, @nombre, @apellido, @fecha_nacimiento, @telefono, @id_grupo);
-END;
+--Procedimiento para agregar una reparacion con repuesto (el id_repuesto se pasa por parametro y actualizar la tabla Reparacion_Repuesto)
+
+IF OBJECT_ID('AgregarReparacionConRepuesto', 'P') IS NOT NULL
+    DROP PROCEDURE AgregarReparacionConRepuesto;
 GO
 
---Procedimiento para modificar un tecnico
-CREATE PROCEDURE sp_ModificarTecnico
-    @documento INT,
-    @nombre VARCHAR(50),
-    @apellido VARCHAR(50),
-    @fecha_nacimiento DATE,
-    @telefono VARCHAR(15),
-    @id_grupo INT
+CREATE PROCEDURE AgregarReparacionConRepuesto
+    @fecha_inicio DATE,
+    @fecha_fin DATE = NULL,
+    @id_revision INT,
+    @id_grupo INT,
+    @id_repuesto INT
 AS
 BEGIN
-    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
 
-    UPDATE Tecnico
-    SET nombre = @nombre,
-        apellido = @apellido,
-        fecha_nacimiento = @fecha_nacimiento,
-        telefono = @telefono,
-        id_grupo = @id_grupo
-    WHERE documento = @documento;
-END;
-GO
+    DECLARE @NuevoIdReparacion INT;
 
---Procedimiento para borrar un tecnico
-CREATE PROCEDURE sp_BorrarTecnico
-    @documento INT
-AS
-BEGIN
-    SET NOCOUNT ON; -- Evitar un mensaje con las filas afectadas para mejorar el rendimiento
-
-    DELETE FROM Tecnico
-    WHERE documento = @documento;
-END;
-GO
-
-
-
-Insertar un lote de datos en las tablas mencionadas (guardar el script) con sentencias insert y otro lote invocando a los procedimientos creados.
-
-
-
-
-Realizar  update y delete sobre  algunos de los registros insertados  en esas tablas invocando a los procedimientos. 
-
-Desarrollar al menos tres funciones almacenadas. Por ej: calcular la edad, 
-
-Comparar la eficiencia de las operaciones directas versus el uso de procedimientos y funciones
-
-
-
-
-
-
-
-
-
-
-
-
-
---(1) Tipo de tabla para pasar lista de repuestos al SP
- 
-IF TYPE_ID('dbo.tvp_RepuestoId') IS NULL
-    CREATE TYPE dbo.tvp_RepuestoId AS TABLE
-    (
-        id_repuesto INT NOT NULL
+    INSERT INTO Reparacion (
+        fecha_inicio,
+        fecha_fin,
+        id_revision,
+        id_grupo
+    )
+    VALUES (
+        @fecha_inicio,
+        @fecha_fin,
+        @id_revision,
+        @id_grupo
     );
+
+    SET @NuevoIdReparacion = SCOPE_IDENTITY();
+
+    INSERT INTO Reparacion_Repuesto (
+        id_repuesto,
+        id_reparacion
+    )
+    VALUES (
+        @id_repuesto,
+        @NuevoIdReparacion
+    );
+END
 GO
 
---(2) PROCEDIMIENTOS ALMACENADOS
 
-
--- 2.1 Insert: Registrar una revisión y devolver su ID
-IF OBJECT_ID('dbo.RegistrarRevision','P') IS NOT NULL DROP PROCEDURE dbo.RegistrarRevision;
-GO
-CREATE PROCEDURE dbo.RegistrarRevision
-(
-    @id_maquina     INT,
-    @id_grupo       INT,
-    @id_diagnostico VARCHAR(10),
-    @fecha_inicio   DATE,
-    @fecha_fin      DATE = NULL,
-    @id_revision_out INT OUTPUT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    INSERT INTO Revision (fecha_inicio_revision, fecha_fin_revision, id_maquina, id_grupo, id_diagnostico)
-    VALUES (@fecha_inicio, @fecha_fin, @id_maquina, @id_grupo, @id_diagnostico);
-
-    SET @id_revision_out = SCOPE_IDENTITY();
-END;
-GO
-
--- 2.2 Insert en varias tablas: Reparación + (N..N) Repuestos
-IF OBJECT_ID('dbo.RegistrarReparacionConRepuestos','P') IS NOT NULL DROP PROCEDURE dbo.RegistrarReparacionConRepuestos;
-GO
-CREATE PROCEDURE dbo.RegistrarReparacionConRepuestos
-(
-    @id_revision    INT,
-    @id_grupo       INT,
-    @fecha_inicio   DATE,
-    @fecha_fin      DATE = NULL,
-    @Repuestos      dbo.tvp_RepuestoId READONLY, 
-    @id_reparacion_out INT OUTPUT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Insert de la reparación
-    INSERT INTO Reparacion (fecha_inicio_reparacion, fecha_fin_reparacion, id_revision, id_grupo)
-    VALUES (@fecha_inicio, @fecha_fin, @id_revision, @id_grupo);
-
-    SET @id_reparacion_out = SCOPE_IDENTITY();
-
-    -- Asociaciones N..N con repuestos
-    INSERT INTO Reparacion_Repuesto (id_reparacion, id_repuesto)
-    SELECT @id_reparacion_out, r.id_repuesto
-    FROM @Repuestos AS r;
-END;
-GO
-
--- 2.3 Update: cerrar una reparación (asignar fecha de fin)
-IF OBJECT_ID('dbo.ActualizarFinReparacion','P') IS NOT NULL DROP PROCEDURE dbo.ActualizarFinReparacion;
-GO
-CREATE PROCEDURE dbo.ActualizarFinReparacion
-(
+-- Procedimiento para actualizar la fecha de fin de una reparacion
+CREATE PROCEDURE setFechaFinReparacion
     @id_reparacion INT,
-    @fecha_fin     DATE
-)
+    @fecha_fin DATE
 AS
 BEGIN
     SET NOCOUNT ON;
 
     UPDATE Reparacion
-       SET fecha_fin_reparacion = @fecha_fin
-     WHERE id_reparacion = @id_reparacion;
-END;
+    SET fecha_fin = @fecha_fin
+    WHERE id_reparacion = @id_reparacion;
+END
 GO
 
--- 2.4 Delete: eliminar reparación + sus repuestos asociados
-IF OBJECT_ID('dbo.EliminarReparacionCompleta','P') IS NOT NULL DROP PROCEDURE dbo.EliminarReparacionCompleta;
-GO
-CREATE PROCEDURE dbo.EliminarReparacionCompleta
-(
+--Procedimiento para eliminar una reparacion junto con sus repuestos asociados
+CREATE PROCEDURE EliminarReparacionConRepuesto
     @id_reparacion INT
-)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DELETE FROM Reparacion_Repuesto WHERE id_reparacion = @id_reparacion;
-    DELETE FROM Reparacion         WHERE id_reparacion = @id_reparacion;
-END;
+    -- Primero se elimina la asiacion de repuestos a la reparación
+    DELETE FROM Reparacion_Repuesto
+    WHERE id_reparacion = @id_reparacion;
+
+    -- Luego se la reparación
+    DELETE FROM Reparacion
+    WHERE id_reparacion = @id_reparacion;
+END
 GO
 
 
+--------------------------------------------------------------------------------------
+-- INSERTANDO DATOS DE PRUEBA EN LA TABLA REPARACION Y REPARACION_REPUESTO DE FORMA MANUAL
+--------------------------------------------------------------------------------------
 
---(3) FUNCIONES ALMACENADAS
-  
+PRINT '--- INICIO: Inserción Manual---';
+DECLARE @NuevoIdReparacion_Manual INT;
 
--- 3.1 Escalar: cantidad de revisiones por máquina
-IF OBJECT_ID('dbo.fn_CantidadRevisionesPorMaquina','FN') IS NOT NULL DROP FUNCTION dbo.fn_CantidadRevisionesPorMaquina;
-GO
-CREATE FUNCTION dbo.fn_CantidadRevisionesPorMaquina (@id_maquina INT)
-RETURNS INT
-AS
-BEGIN
-    DECLARE @cant INT;
+BEGIN TRANSACTION; 
 
-    SELECT @cant = COUNT(*) 
-    FROM Revision
-    WHERE id_maquina = @id_maquina;
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-14', 1, 1);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (1, @NuevoIdReparacion_Manual);
 
-    RETURN ISNULL(@cant, 0);
-END;
-GO
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-15', 2, 2);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (2, @NuevoIdReparacion_Manual);
 
--- 3.2 Escalar: reparaciones abiertas por grupo
-IF OBJECT_ID('dbo.fn_ReparacionesAbiertasPorGrupo','FN') IS NOT NULL DROP FUNCTION dbo.fn_ReparacionesAbiertasPorGrupo;
-GO
-CREATE FUNCTION dbo.fn_ReparacionesAbiertasPorGrupo (@id_grupo INT)
-RETURNS INT
-AS
-BEGIN
-    DECLARE @cant INT;
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-16', 3, 3);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (3, @NuevoIdReparacion_Manual);
 
-    SELECT @cant = COUNT(*)
-    FROM Reparacion
-    WHERE id_grupo = @id_grupo
-      AND fecha_fin_reparacion IS NULL;
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-17', 4, 4);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (4, @NuevoIdReparacion_Manual);
 
-    RETURN ISNULL(@cant, 0);
-END;
-GO
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-18', 5, 5);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (5, @NuevoIdReparacion_Manual);
 
--- 3.3 Inline TVF: lista de repuestos por reparación
-IF OBJECT_ID('dbo.fn_RepuestosDeReparacion','IF') IS NOT NULL DROP FUNCTION dbo.fn_RepuestosDeReparacion;
-GO
-CREATE FUNCTION dbo.fn_RepuestosDeReparacion (@id_reparacion INT)
-RETURNS TABLE
-AS
-RETURN
-(
-    SELECT rr.id_repuesto, rep.descripcion
-    FROM Reparacion_Repuesto AS rr
-    INNER JOIN Repuesto AS rep
-        ON rep.id_repuesto = rr.id_repuesto
-    WHERE rr.id_reparacion = @id_reparacion
-);
-GO
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-19', 1, 2);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (1, @NuevoIdReparacion_Manual);
+
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-20', 2, 3);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (2, @NuevoIdReparacion_Manual);
+
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-21', 3, 4);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (3, @NuevoIdReparacion_Manual);
+
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-22', 4, 5);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (4, @NuevoIdReparacion_Manual);
+
+INSERT INTO Reparacion (fecha_inicio, id_revision, id_grupo) VALUES ('2025-11-23', 5, 1);
+SET @NuevoIdReparacion_Manual = SCOPE_IDENTITY();
+INSERT INTO Reparacion_Repuesto (id_repuesto, id_reparacion) VALUES (5, @NuevoIdReparacion_Manual);
+
+COMMIT TRANSACTION;
+PRINT '--- FIN: Inserción Manual ---';
 
 
+--------------------------------------------------------------------------------------
+-- INSERTANDO DATOS DE PRUEBA EN LA TABLA REPARACION Y REPARACION_REPUESTO LLMANDO A PROCEDURE AgregarReparacionConRepuesto
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
--- (4) PRUEBAS 
+PRINT '--- INICIO: Inserción con procedimiento almacenado ---';
 
--- A) Insertar una revisión y capturar su ID (OUTPUT)
-DECLARE @id_rev INT;
-EXEC dbo.RegistrarRevision
-     @id_maquina     = 1,
-     @id_grupo       = 1,
-     @id_diagnostico = 'D001',
-     @fecha_inicio   = '2025-10-25',
-     @fecha_fin      = NULL,
-     @id_revision_out = @id_rev OUTPUT;
+EXEC AgregarReparacionConRepuesto '2025-12-01', NULL, 1, 1, 5;
 
-PRINT 'Nueva revisión ID: ' + CAST(@id_rev AS VARCHAR(10));
+EXEC AgregarReparacionConRepuesto '2025-12-02', NULL, 2, 2, 4;
 
--- B) Insertar una reparación con repuestos (TVP)
-DECLARE @reps dbo.tvp_RepuestoId;
-INSERT INTO @reps (id_repuesto) VALUES (2), (5); 
+EXEC AgregarReparacionConRepuesto '2025-12-03', NULL, 3, 3, 3;
 
-DECLARE @id_rep INT;
-EXEC dbo.RegistrarReparacionConRepuestos
-     @id_revision       = @id_rev,
-     @id_grupo          = 1,
-     @fecha_inicio      = '2025-10-26',
-     @fecha_fin         = NULL,
-     @Repuestos         = @reps,
-     @id_reparacion_out = @id_rep OUTPUT;
+EXEC AgregarReparacionConRepuesto '2025-12-04', NULL, 4, 4, 2;
 
-PRINT 'Nueva reparación ID: ' + CAST(@id_rep AS VARCHAR(10));
+EXEC AgregarReparacionConRepuesto '2025-12-05', NULL, 5, 5, 1;
 
--- C) Actualizar fin de reparación
-EXEC dbo.ActualizarFinReparacion @id_reparacion = @id_rep, @fecha_fin = '2025-10-27';
+EXEC AgregarReparacionConRepuesto '2025-12-06', NULL, 1, 2, 5;
 
--- D) Consultas usando funciones
-SELECT dbo.fn_CantidadRevisionesPorMaquina(1)      AS Revisiones_Maq1;
-SELECT dbo.fn_ReparacionesAbiertasPorGrupo(1)      AS ReparacionesAbiertas_Grupo1;
-SELECT * FROM dbo.fn_RepuestosDeReparacion(@id_rep) AS RepuestosDeReparacion;
+EXEC AgregarReparacionConRepuesto '2025-12-07', NULL, 2, 3, 4;
 
--- E) Eliminar reparación completa (limpia tablas N..N)
-EXEC dbo.EliminarReparacionCompleta @id_reparacion = @id_rep;
+EXEC AgregarReparacionConRepuesto '2025-12-08', NULL, 3, 4, 3;
 
--- Verificacion
-SELECT TOP 10 * FROM Revision ORDER BY id_revision DESC;
-SELECT TOP 10 * FROM Reparacion ORDER BY id_reparacion DESC;
-SELECT TOP 10 * FROM Reparacion_Repuesto ORDER BY id_reparacion DESC, id_repuesto ASC;
+EXEC AgregarReparacionConRepuesto '2025-12-09', NULL, 4, 5, 2;
+
+EXEC AgregarReparacionConRepuesto '2025-12-10', NULL, 5, 1, 1;
+PRINT '--- FIN: Inserción con Stored Procedure ---';
+
+-- Realizar  update y delete sobre  algunos de los registros insertados  en esas tablas invocando a los procedimientos. 
+
+
+-- Ejecución del procedimiento de actualización
+EXEC setFechaFinReparacion @id_reparacion = 1, @fecha_fin = '2025-11-5';
+EXEC setFechaFinReparacion @id_reparacion = 2, @fecha_fin = '2025-10-23';
+EXEC setFechaFinReparacion @id_reparacion = 3, @fecha_fin = '2025-10-21';
+-- Verificación del cambio
+SELECT 
+    id_reparacion, 
+    fecha_inicio, 
+    fecha_fin
+FROM Reparacion
+WHERE id_reparacion IN(1,2,3);
+
+-- Ejecución del procedimiento de eliminación
+EXEC eliminarReparacionConRepuesto @id_reparacion = 4;
+EXEC eliminarReparacionConRepuesto @id_reparacion = 5;
+EXEC eliminarReparacionConRepuesto @id_reparacion = 6;
+
+-- Verificación de eliminacion en Reparacion
+SELECT 
+    id_reparacion, 
+    fecha_inicio, 
+    fecha_fin
+FROM Reparacion
+WHERE id_reparacion IN (4, 5, 6);
+
+-- Verificación de eliminacion en Reparacion_Repuesto
+SELECT
+    id_reparacion,
+    id_repuesto
+FROM Reparacion_Repuesto
+WHERE id_reparacion IN (4, 5, 6);
+
+--Desarrollar al menos tres funciones almacenadas. Por ej: calcular la edad, 
+
+
+
 
